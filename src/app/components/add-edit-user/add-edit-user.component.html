@@ -1,0 +1,64 @@
+<div class="row mt-1">
+  <div class="col-md-4 offset-md-4">
+
+    <div class="card text-bg-light mb-3" >
+      @if (userId) {
+        <div class="card-header">Edit User</div>
+      } @else {
+        <div class="card-header">Add User</div>
+      }
+
+      <div class="card-body">
+
+        <form class="needs-validation" [formGroup]="userForm" (ngSubmit)="onSubmit()">
+          <div class="mb-3">
+            <label for="name" class="form-label">Name</label>
+            <input id="name" type="text" class="form-control" formControlName="name"
+            [ngClass]="{'is-invalid': hasAnyErrors('name')}">
+            @if (hasAnyErrors('name')) {<span class="text-danger">{{getErrorMessage('name')}}</span>}
+          </div>
+          <div class="mb-3">
+            <label for="surname" class="form-label">Surname</label>
+            <input id="surname" type="text" class="form-control" formControlName="surname"
+            [ngClass]="{'is-invalid': hasAnyErrors('surname')}">
+            @if (hasAnyErrors('surname')) {<span class="text-danger">{{getErrorMessage('surname')}}</span>}
+          </div>
+          <div class="mb-3">
+            <label for="email" class="form-label">Email</label>
+            <input id="email" type="email" class="form-control" formControlName="email"
+            [ngClass]="{'is-invalid': hasAnyErrors('email')}">
+            @if (hasAnyErrors('email')) {<span class="text-danger">{{getErrorMessage('email')}}</span>}
+          </div>
+          <div class="mb-3">
+            <label for="city" class="form-label">City</label>
+            <input id="city" type="text" class="form-control" formControlName="city"
+            [ngClass]="{'is-invalid': hasAnyErrors('city')}">
+            @if (hasAnyErrors('city')) {<span class="text-danger">{{getErrorMessage('city')}}</span>}
+          </div>
+          <div class="mb-3">
+            <label for="state" class="form-label">State</label>
+            <input id="state" type="text" class="form-control" formControlName="state"
+            [ngClass]="{'is-invalid': hasAnyErrors('state')}">
+            @if (hasAnyErrors('state')) {<span class="text-danger">{{getErrorMessage('state')}}</span>}
+          </div>
+          <div class="mb-3">
+            <label for="favoriteTeam" class="form-label">Favorite Team</label>
+            <input id="favoriteTeam" type="text" class="form-control" formControlName="favoriteTeam"
+            [ngClass]="{'is-invalid': hasAnyErrors('favoriteTeam')}">
+            @if (hasAnyErrors('favoriteTeam')) {<span class="text-danger">{{getErrorMessage('favoriteTeam')}}</span>}
+          </div>
+          <button type="submit" class="btn btn-primary">Save</button>
+        </form>
+
+      </div>
+    </div>
+
+
+  </div>
+</div>
+
+
+
+
+
+
