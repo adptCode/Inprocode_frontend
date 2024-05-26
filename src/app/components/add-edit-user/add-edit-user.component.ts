@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { AlertComponent } from "../alert/alert.component";
 import { ReactiveFormsModule ,FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { UserService } from '../../services/user.service';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
 
 @Component({
@@ -10,7 +10,7 @@ import { CommonModule } from '@angular/common';
     standalone: true,
     templateUrl: './add-edit-user.component.html',
     styleUrl: './add-edit-user.component.css',
-    imports: [CommonModule,ReactiveFormsModule, AlertComponent]
+    imports: [CommonModule,ReactiveFormsModule, AlertComponent, RouterLink]
 })
 export class AddEditUserComponent implements OnInit {
 
@@ -27,7 +27,7 @@ export class AddEditUserComponent implements OnInit {
   ) {
     this.userForm = this.fb.group({
       name: ['', [Validators.required, Validators.pattern(/^[a-zA-Z\s]+$/), Validators.minLength(3), Validators.maxLength(20)]],
-      surname: ['', [Validators.required, Validators.pattern(/^[a-zA-Z\s]+$/), Validators.minLength(3), Validators.maxLength(20)]],
+      lastName: ['', [Validators.required, Validators.pattern(/^[a-zA-Z\s]+$/), Validators.minLength(3), Validators.maxLength(20)]],
       email: ['', [Validators.required, Validators.pattern(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/)]],
       city: ['', [Validators.required, Validators.pattern(/^[a-zA-Z\s]+$/), Validators.minLength(3), Validators.maxLength(20)]],
       state: ['', [Validators.required, Validators.pattern(/^[a-zA-Z\s]+$/), Validators.minLength(3), Validators.maxLength(20)]],
@@ -38,10 +38,14 @@ export class AddEditUserComponent implements OnInit {
   ngOnInit(): void {
     this.route.paramMap.subscribe(params => {
       this.userId = Number(params.get('id'));
+      if (this.userId) {
+        this.userService.getUser(this.userId).subscribe(user => {
+          this.userForm.patchValue(user);
+        });
+      }
     })
   }
 
- 
 
   hasAnyErrors(field: string): boolean {
     const control = this.userForm.get(field);
@@ -64,13 +68,37 @@ export class AddEditUserComponent implements OnInit {
     return '';
   }
 
-  onSubmit() {
+  onSubmit(): void {
     if(this.userForm.invalid) {
       this.userForm.markAllAsTouched();
       return;
     }
 
+    if (this.userForm.valid) {
+      if (this.userId) {
+        this.userService.updateUser(this.userId, this.userForm.value).subscribe(() => {
+          this.alertMessage = 'User updated successfully!';
+          this.alertType = 'success';
+          setTimeout(() => {
+            this.router.navigate(['/users']);
+          }, 3000);
+
+        });
+      } else {
+        this.userService.addUser(this.userForm.value).subscribe(() => {
+          this.alertMessage = 'User added successfully!';
+          this.alertType = 'success';
+          setTimeout(() => {
+            this.router.navigate(['/users']);
+          }, 3000);
+
+        });
+      }
+    }
   }
 
 
 }
+
+
+

@@ -1,4 +1,5 @@
 <div class="row mt-1">
+  <app-alert [message]="alertMessage" [type]="alertType"></app-alert>
   <div class="col-md-4 offset-md-4">
 
     <div class="card text-bg-light mb-3" >
@@ -18,10 +19,10 @@
             @if (hasAnyErrors('name')) {<span class="text-danger">{{getErrorMessage('name')}}</span>}
           </div>
           <div class="mb-3">
-            <label for="surname" class="form-label">Surname</label>
-            <input id="surname" type="text" class="form-control" formControlName="surname"
-            [ngClass]="{'is-invalid': hasAnyErrors('surname')}">
-            @if (hasAnyErrors('surname')) {<span class="text-danger">{{getErrorMessage('surname')}}</span>}
+            <label for="lastName" class="form-label">Surname</label>
+            <input id="lastName" type="text" class="form-control" formControlName="lastName"
+            [ngClass]="{'is-invalid': hasAnyErrors('lastName')}">
+            @if (hasAnyErrors('lastName')) {<span class="text-danger">{{getErrorMessage('lastName')}}</span>}
           </div>
           <div class="mb-3">
             <label for="email" class="form-label">Email</label>
@@ -47,7 +48,16 @@
             [ngClass]="{'is-invalid': hasAnyErrors('favoriteTeam')}">
             @if (hasAnyErrors('favoriteTeam')) {<span class="text-danger">{{getErrorMessage('favoriteTeam')}}</span>}
           </div>
-          <button type="submit" class="btn btn-primary">Save</button>
+          <div class="row text-center">
+            <div class="col-lg-6">
+              <button type="submit" class="btn btn-primary">Save</button>
+            </div>
+            <div class="col-lg-6">
+              <button routerLink="/" type="button" class="btn btn-secondary">Return</button>
+            </div>
+          </div>
+
+
         </form>
 
       </div>
