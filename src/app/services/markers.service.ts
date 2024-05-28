@@ -17,7 +17,7 @@ export class MarkersService {
     return this.http.get<Marker[]>(this.apiUrl);
   }
 
-  createMarker(marker: Partial<Marker>): Observable<Marker> {
+  createMarker(marker: Marker): Observable<Marker> {
     return this.http.post<Marker>(this.apiUrl, marker);
   }
 

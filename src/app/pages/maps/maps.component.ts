@@ -1,8 +1,6 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import mapboxgl from 'mapbox-gl';
 import { environment } from '../../../environments/environment';
-import { Stadium } from '../../interfaces/stadium';
-import { StadiumService } from '../../services/stadium.service';
 import { Marker } from '../../interfaces/markers';
 import { MarkersService } from '../../services/markers.service';
 
@@ -15,19 +13,14 @@ import { MarkersService } from '../../services/markers.service';
 })
 export class MapsComponent implements OnInit, OnDestroy{
 
-  public map!: mapboxgl.Map;
-  stadiums: Stadium[] = [];
-  markers: Marker[] = [];
-  mapMarkers: mapboxgl.Marker[] = [];
-  markerName: string = '';
+  map!: mapboxgl.Map;
 
-  constructor(private _stadiumService: StadiumService, private _markerService: MarkersService) {}
+
+
+  constructor(private _markerService: MarkersService) {}
 
   ngOnInit() {
-
     this.initializeMap();
-    //this.loadStadiums();
-    this.loadMarkers();
   }
 
   ngOnDestroy(): void {
@@ -44,68 +37,41 @@ export class MapsComponent implements OnInit, OnDestroy{
     });
 
     this.map.on('click', (event) => {
-      const coordinates = event.lngLat;
-      const name = prompt("Enter the name for the marker:");
-      if (name) {
-        this.addMarker({ latitude: coordinates.lat, longitude: coordinates.lng, name });
+      const popup = new mapboxgl.Popup().setHTML(`${event.lngLat}`)
+      const marker = new mapboxgl.Marker().setLngLat(event.lngLat).setPopup(popup).addTo(this.map);
+      marker.togglePopup();
+      const {lng, lat } = event.lngLat
+      const newMarker: Marker = {
+        longitude: lng,
+        latitude: lat
+      };
+
+      this._markerService.createMarker(newMarker).subscribe({
+        next: (response) => {
+          console.log('Marker saved successfully:', response);
+        },
+        error: (error) => {
+          console.error('Error saving marker:', error);
+        }
+      });
+
+
+    });
+  }
+
+
+  clearMarkers() {
+    this._markerService.deleteAllMarkers().subscribe({
+      next: () => {
+        console.log('All markers deleted successfully');
+      },
+      error: (error) => {
+        console.error('Error deleting all markers:', error);
       }
-    });
+    })
   }
 
-  /*
-  loadStadiums(): void {
-    this._stadiumService.getStadiums().subscribe(stadiums => {
-      this.stadiums = stadiums;
-      console.log(this.stadiums)
-      this.addStadiumMarkers();
-    });
-  }
 
-  addStadiumMarkers(): void {
-    this.stadiums.forEach(stadium => {
-      new mapboxgl.Marker({ color: 'red' })
-        .setLngLat([stadium.longitude, stadium.latitude])
-        .setPopup(new mapboxgl.Popup({ offset: 25 })
-        .setText(`${stadium.name}, ${stadium.city}, ${stadium.country}`))
-        .addTo(this.map);
-    });
-  }
-
-  */
-
-loadMarkers(): void {
-  this._markerService.getMarkers().subscribe(markers => {
-    this.markers = markers;
-    this.addExistingMarkers();
-  });
-}
-
-addExistingMarkers(): void {
-  this.markers.forEach(marker => {
-    new mapboxgl.Marker({ color: 'blue' })
-      .setLngLat([marker.longitude, marker.latitude])
-      .setPopup(new mapboxgl.Popup({ offset: 25 }).setText(marker.name))
-      .addTo(this.map);
-  });
-}
-
-addMarker(marker: Partial<Marker>): void {
-  this._markerService.createMarker(marker).subscribe(newMarker => {
-    this.markers.push(newMarker);
-    new mapboxgl.Marker({ color: 'blue' })
-      .setLngLat([newMarker.longitude, newMarker.latitude])
-      .setPopup(new mapboxgl.Popup({ offset: 25 }).setText(newMarker.name))
-      .addTo(this.map);
-  });
-}
-
-clearMarkers(): void {
-  this.mapMarkers.forEach(marker => marker.remove());
-    this.mapMarkers = [];
-    this._markerService.deleteAllMarkers().subscribe(() => {
-      this.markers = [];
-    });
-  }
 }
 
 

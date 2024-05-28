@@ -1,6 +1,6 @@
 export interface Marker {
-  id: number;
+  id?: number;
   latitude: number;
   longitude: number;
-  name: string;
+  name?: string;
 }
