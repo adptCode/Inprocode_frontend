@@ -24,6 +24,7 @@ export class MapsComponent implements OnInit, OnDestroy{
   }
 
   ngOnDestroy(): void {
+    
     this.clearMarkers();
   }
 

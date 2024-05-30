@@ -4,6 +4,7 @@ import { ReactiveFormsModule ,FormBuilder, FormGroup, Validators } from '@angula
 import { UserService } from '../../services/user.service';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
+import { error } from 'console';
 
 @Component({
     selector: 'app-add-edit-user',
@@ -58,7 +59,7 @@ export class AddEditUserComponent implements OnInit {
       if (control.errors['required']) {
         return 'You have to complete this field';
       } else if (control.errors['pattern']) {
-        return 'Only letters';
+        return 'Invalid';
       } else if (control.errors['minlength']) {
         return 'Too short';
       } else if (control.errors['maxlength']) {
@@ -76,27 +77,36 @@ export class AddEditUserComponent implements OnInit {
 
     if (this.userForm.valid) {
       if (this.userId) {
-        this.userService.updateUser(this.userId, this.userForm.value).subscribe(() => {
-          this.alertMessage = 'User updated successfully!';
-          this.alertType = 'success';
-          setTimeout(() => {
-            this.router.navigate(['/users']);
-          }, 3000);
-
-        });
+        this.userService.updateUser(this.userId, this.userForm.value).subscribe(
+            () => {
+              this.alertMessage = 'User updated successfully!';
+              this.alertType = 'success';
+              setTimeout(() => {
+                this.router.navigate(['/users']);
+              }, 3000);
+            },
+            (error) => {
+              this.alertMessage = error.message;
+              this.alertType = 'danger';
+            }
+        );
       } else {
-        this.userService.addUser(this.userForm.value).subscribe(() => {
-          this.alertMessage = 'User added successfully!';
-          this.alertType = 'success';
-          setTimeout(() => {
-            this.router.navigate(['/users']);
-          }, 3000);
-
-        });
+        this.userService.addUser(this.userForm.value).subscribe(
+          () => {
+            this.alertMessage = 'User added successfully!';
+            this.alertType = 'success';
+            setTimeout(() => {
+              this.router.navigate(['/users']);
+            }, 3000);
+          },
+          (error) => {
+            this.alertMessage = error.message;
+            this.alertType = 'danger';
+          }
+        );
       }
     }
   }
-
 
 }
 

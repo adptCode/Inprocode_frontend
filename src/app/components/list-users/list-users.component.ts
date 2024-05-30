@@ -39,7 +39,7 @@ export class ListUsersComponent implements OnInit {
     this._userService.deleteUser(id).subscribe(() => {
       this.users = this.users.filter(user => user.id !== id);
       this.alertMessage = 'User delete successfully!';
-      this.alertType = 'danger';
+      this.alertType = 'warning';
       setTimeout(() => {
         this.alertMessage = "";
         this.alertType = undefined;
