@@ -12,6 +12,7 @@ import {
 } from '@angular/forms';
 import { EventsService } from '../../services/events.service';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
+import { ActivatedRoute } from '@angular/router';
 
 @Component({
   selector: 'app-full-calendar',
@@ -28,13 +29,15 @@ export class FullCalendarComponent implements AfterViewInit{
   events: any[] = [];
   eventDate!: string;
   event?: any;
+  eventId?: number
 
 
-  constructor(private fb: FormBuilder, private _eventService: EventsService, @Inject(PLATFORM_ID) private platformId: Object) {
+  constructor(private fb: FormBuilder, private _eventService: EventsService, @Inject(PLATFORM_ID) private platformId: Object, private route: ActivatedRoute) {
 
     this.eventForm = this.fb.group({
       title: ['', Validators.required],
       color: [''],
+      check: [false]
     })
   }
   ngAfterViewInit(): void {
@@ -54,8 +57,8 @@ export class FullCalendarComponent implements AfterViewInit{
   calendarOptions: CalendarOptions = {
     initialView: 'dayGridMonth',
     plugins: [interactionPlugin, dayGridPlugin, timeGridPlugin],
-    dateClick: (arg) => this.handleDateClick(arg),
-    eventClick: (select) => this.handleEventClick(select),
+    dateClick:  this.handleDateClick.bind(this),
+    eventClick:  this.handleEventClick.bind(this),
 
     headerToolbar: {
       left: 'prev,next today',
@@ -69,49 +72,93 @@ export class FullCalendarComponent implements AfterViewInit{
     eventDurationEditable: false
   };
 
-  handleDateClick(arg:any) {
+  handleDateClick(date:any) {
 
-    this.eventDate = arg.dateStr;
+    this.eventDate = date.dateStr;
     this.addModal = true;
 
   }
 
-  handleEventClick(select:any)  {
-    console.log(select);
+  handleEventClick(event:any)  {
+    this.event = event.event
+    this.eventForm.get('title')?.setValue(event.event._def.title);
+    this.eventForm.get('color')?.setValue(event.event._def.ui.backgroundColor);
+    this.addModal = true;
+  }
+
+  toggleCheck() {
+    const checkControl = this.eventForm.get('check');
+    checkControl?.setValue(!checkControl.value);
   }
 
   onSubmit() {
+    if (this.eventForm.valid) {
+      if (!this.event) {
+        const newEvent = {
+          title: this.eventForm.get('title')!.value,
+          date: this.eventDate,
+          color: this.eventForm.get('color')?.value || null
+        };
 
-    if(this.eventForm.valid) {
-      const newEvent = {
-        title: this.eventForm.get('title')!.value,
-        date: this.eventDate,
-        color: this.eventForm.get('color')?.value || null
+        this._eventService.addEvent(newEvent).subscribe({
+          next: (res) => {
+            this.events.push(res);
+            this.calendarOptions.events = [...this.events];
+            this.resetForm();
+            this.loadEvent();
+          },
+          error: (error) => {
+            console.error('Error:', error);
+          }
+        });
+      } else {
+        if (this.eventForm.get('check')?.value) {
+          this._eventService.deleteEvent(this.event.id).subscribe({
+            next: () => {
+              this.events = this.events.filter(e => e.id !== this.event.id);
+              this.calendarOptions.events = [...this.events];
+              this.resetForm();
+              this.loadEvent()
+            },
+            error: (error) => {
+              console.error('Error:', error);
+            }
+          });
+        } else {
+          const updatedEvent = {
+            id: this.event.id,
+            title: this.eventForm.get('title')!.value,
+            date: this.event.startStr,
+            color: this.eventForm.get('color')?.value || null
+          };
 
-      };
-
-      this._eventService.addEvent(newEvent).subscribe({
-        next: (res) => {
-          this.events.push(res);
-          this.calendarOptions.events = {...this.calendarOptions, events: [...this.events]};
-          this.resetForm();
-          this.loadEvent()
-        },
-        error: (error) => {
-          console.error('Error:', error);
+          this._eventService.updateEvent(this.event.id, updatedEvent).subscribe({
+            next: (res) => {
+              const index = this.events.findIndex(e => e.id === this.event.id);
+              if (index !== -1) {
+                this.events[index] = res;
+                this.calendarOptions.events = [...this.events];
+              }
+              this.resetForm();
+              this.loadEvent()
+            },
+            error: (error) => {
+              console.error('Error:', error);
+            }
+          });
         }
-      })
-
+      }
     } else {
       this.eventForm.markAllAsTouched();
     }
+
   }
 
 
 
   resetForm() {
     this.addModal = false;
-    this.addEditModal = false;
+    this.event = ""
     this.eventForm.reset();
   }
 
