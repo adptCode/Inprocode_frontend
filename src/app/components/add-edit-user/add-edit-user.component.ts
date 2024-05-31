@@ -77,34 +77,34 @@ export class AddEditUserComponent implements OnInit {
 
     if (this.userForm.valid) {
       if (this.userId) {
-        this.userService.updateUser(this.userId, this.userForm.value).subscribe(
-            () => {
-              this.alertMessage = 'User updated successfully!';
-              this.alertType = 'success';
-              setTimeout(() => {
-                this.router.navigate(['/users']);
-              }, 3000);
+        this.userService.updateUser(this.userId, this.userForm.value).subscribe({
+            next: () => {
+                this.alertMessage = 'User updated successfully!';
+                this.alertType = 'success';
+                setTimeout(() => {
+                    this.router.navigate(['/users']);
+                }, 3000);
             },
-            (error) => {
-              this.alertMessage = error.message;
-              this.alertType = 'danger';
+            error: (error) => {
+                this.alertMessage = error.message;
+                this.alertType = 'danger';
             }
-        );
-      } else {
-        this.userService.addUser(this.userForm.value).subscribe(
-          () => {
-            this.alertMessage = 'User added successfully!';
-            this.alertType = 'success';
-            setTimeout(() => {
-              this.router.navigate(['/users']);
-            }, 3000);
-          },
-          (error) => {
-            this.alertMessage = error.message;
-            this.alertType = 'danger';
-          }
-        );
-      }
+        });
+    } else {
+        this.userService.addUser(this.userForm.value).subscribe({
+            next: () => {
+                this.alertMessage = 'User added successfully!';
+                this.alertType = 'success';
+                setTimeout(() => {
+                    this.router.navigate(['/users']);
+                }, 3000);
+            },
+            error: (error) => {
+                this.alertMessage = error.message;
+                this.alertType = 'danger';
+            }
+        });
+    }
     }
   }
 

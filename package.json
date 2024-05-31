@@ -28,6 +28,7 @@
     "@fullcalendar/list": "^6.1.13",
     "@fullcalendar/timegrid": "^6.1.13",
     "bootstrap": "^5.3.3",
+    "chart.js": "^4.4.3",
     "express": "^4.18.2",
     "mapbox-gl": "^3.4.0",
     "rxjs": "~7.8.0",

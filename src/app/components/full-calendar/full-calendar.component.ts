@@ -25,7 +25,6 @@ export class FullCalendarComponent implements AfterViewInit{
 
   eventForm: FormGroup;
   addModal:boolean =  false;
-  addEditModal:boolean =  false;
   events: any[] = [];
   eventDate!: string;
   event?: any;
