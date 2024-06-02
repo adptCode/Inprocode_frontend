@@ -1,8 +1,16 @@
 #map {
   width: 90vw;
   height: 60vh;
+  position: relative;
 }
 
 .mapboxgl-popup {
   max-width: 200px;
 }
+
+.marker {
+  background-repeat: no-repeat;
+  background-position: center;
+  cursor: pointer;
+}
+

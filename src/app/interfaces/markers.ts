@@ -3,4 +3,5 @@ export interface Marker {
   latitude: number;
   longitude: number;
   name?: string;
+  category?: string;
 }

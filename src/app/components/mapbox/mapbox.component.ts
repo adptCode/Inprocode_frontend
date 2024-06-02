@@ -15,6 +15,10 @@ import { MarkersService } from '../../services/markers.service';
 export class MapboxComponent implements OnInit, OnDestroy {
 
   map!: mapboxgl.Map;
+  predefinedMarkers: mapboxgl.Marker[] = [];
+  dynamicMarkers: mapboxgl.Marker[] = [];
+  allMarkers: Marker[] = [];
+  selectedCategories: Set<string> = new Set();
 
 
 
@@ -22,11 +26,13 @@ export class MapboxComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.initializeMap();
+    this.loadPredefinedMarkers();
   }
 
   ngOnDestroy(): void {
 
-    this.clearMarkers();
+
+    this.clearDynamicMarkers();
   }
 
   initializeMap(): void {
@@ -39,14 +45,19 @@ export class MapboxComponent implements OnInit, OnDestroy {
     });
 
     this.map.on('click', (event) => {
-      const popup = new mapboxgl.Popup().setHTML(`${event.lngLat}`)
-      const marker = new mapboxgl.Marker().setLngLat(event.lngLat).setPopup(popup).addTo(this.map);
-      marker.togglePopup();
-      const {lng, lat } = event.lngLat
+      const {lng, lat } = event.lngLat;
       const newMarker: Marker = {
         longitude: lng,
         latitude: lat
       };
+      const marker = new mapboxgl.Marker().setLngLat(event.lngLat).addTo(this.map);
+      this.dynamicMarkers.push(marker);
+      const popup = new mapboxgl.Popup({ offset: 25 }).setHTML(`<h3>Dynamic Marker</h3><p>Coordinates: ${lng}, ${lat}</p>`)
+
+      marker.setPopup(popup).togglePopup();
+
+
+
 
       this._markerService.createMarker(newMarker).subscribe({
         next: (response) => {
@@ -61,17 +72,72 @@ export class MapboxComponent implements OnInit, OnDestroy {
     });
   }
 
+  loadPredefinedMarkers() {
+    this._markerService.getMarkers().subscribe({
+      next: (markers) => {
+        this.allMarkers = markers;
+        this.displayMarkers(markers);
+      },
+      error: (error) => {
+        console.error('Error loading predefined markers:', error);
+      }
+    });
+  }
 
-  clearMarkers() {
+  toggleCategory(event: any, category: string) {
+    if (event.target.checked) {
+      this.selectedCategories.add(category);
+    } else {
+      this.selectedCategories.delete(category);
+    }
+    this.filterMarkers();
+  }
+
+  filterMarkers() {
+    this.predefinedMarkers.forEach(marker => marker.remove());
+    this.predefinedMarkers = [];
+
+    const filteredMarkers = this.allMarkers.filter((marker:any) =>
+      this.selectedCategories.size === 0 || this.selectedCategories.has(marker.category)
+    );
+
+    this.displayMarkers(filteredMarkers);
+  }
+
+  displayMarkers(markers: Marker[]) {
+    markers.forEach(markerData => {
+      const el = document.createElement('div');
+      el.className = 'marker';
+      el.style.width = '32px';
+      el.style.height = '32px';
+      el.style.backgroundSize = '100%';
+      const marker = new mapboxgl.Marker()
+        .setLngLat([markerData.longitude, markerData.latitude])
+        .addTo(this.map);
+        const popup = new mapboxgl.Popup({ offset: 25 }).setHTML(
+          `<h3>${markerData.name}</h3><p>Coordinates: ${markerData.longitude}, ${markerData.latitude}</p><p>Category: ${markerData.category}</p>`
+        );
+        marker.setPopup(popup);
+        marker.getElement().addEventListener('mouseenter', () => popup.addTo(this.map));
+        marker.getElement().addEventListener('mouseleave', () => popup.remove());
+
+
+      this.predefinedMarkers.push(marker);
+    });
+  }
+
+  clearDynamicMarkers() {
+    this.dynamicMarkers.forEach(marker => marker.remove());
+    this.dynamicMarkers = [];
     this._markerService.deleteAllMarkers().subscribe({
       next: () => {
-        console.log('All markers deleted successfully');
+        console.log('All dynamic markers deleted successfully');
       },
       error: (error) => {
         console.error('Error deleting all markers:', error);
       }
-    })
+    });
   }
 
-
 }
+
