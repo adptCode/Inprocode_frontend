@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, Inject, PLATFORM_ID,  } from '@angular/core';
+import { AfterViewInit, Component } from '@angular/core';
 import { FullCalendarModule } from '@fullcalendar/angular';
 import { CalendarOptions } from '@fullcalendar/core';
 import interactionPlugin from '@fullcalendar/interaction';
@@ -11,7 +11,7 @@ import {
   Validators,
 } from '@angular/forms';
 import { EventsService } from '../../services/events.service';
-import { CommonModule, isPlatformBrowser } from '@angular/common';
+import { CommonModule } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
 
 @Component({
@@ -31,7 +31,7 @@ export class FullCalendarComponent implements AfterViewInit{
   eventId?: number
 
 
-  constructor(private fb: FormBuilder, private _eventService: EventsService, @Inject(PLATFORM_ID) private platformId: Object, private route: ActivatedRoute) {
+  constructor(private fb: FormBuilder, private _eventService: EventsService, private route: ActivatedRoute) {
 
     this.eventForm = this.fb.group({
       title: ['', Validators.required],
@@ -40,10 +40,7 @@ export class FullCalendarComponent implements AfterViewInit{
     })
   }
   ngAfterViewInit(): void {
-    if(isPlatformBrowser(this.platformId)) {
       this.loadEvent();
-    }
-
   }
 
   loadEvent() {
