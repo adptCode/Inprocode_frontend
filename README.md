@@ -29,7 +29,7 @@ npm install
 
 ## Configure environment variables:
 
-Create an environment.ts file in the src/environments directory and add your Mapbox token details:
+Create an environment.ts file in the src/environments(create the folder!) directory and add your Mapbox token details:
 export const environment = {
   production: false,
   mapboxToken: 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
