@@ -1,4 +1,5 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit, Inject, PLATFORM_ID } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
 import mapboxgl from 'mapbox-gl';
 import { environment } from '../../../environments/environment';
 import { Marker } from '../../interfaces/markers';
@@ -22,17 +23,22 @@ export class MapboxComponent implements OnInit, OnDestroy {
 
 
 
-  constructor(private _markerService: MarkersService) {}
+  constructor(private _markerService: MarkersService, @Inject(PLATFORM_ID) private platformId: any) {}
 
   ngOnInit() {
-    this.initializeMap();
-    this.loadPredefinedMarkers();
+    if (isPlatformBrowser(this.platformId)) {
+      this.initializeMap();
+      this.loadPredefinedMarkers();
+    }
+
   }
 
   ngOnDestroy(): void {
+    if(this.map) {
+      this.clearDynamicMarkers();
+    }
 
 
-    this.clearDynamicMarkers();
   }
 
   initializeMap(): void {
